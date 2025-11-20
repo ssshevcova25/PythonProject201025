@@ -1,0 +1,79 @@
+<html>
+<head>
+<title>test_masks.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #7a7e85;}
+.s3 { color: #bcbec4;}
+.s4 { color: #6aab73;}
+.s5 { color: #5f826b; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+test_masks.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pytest</span>
+<span class="s0">import </span><span class="s1">sys</span>
+<span class="s0">import </span><span class="s1">os</span>
+
+<span class="s2"># Добавляем путь к src для импорта модулей</span>
+<span class="s1">sys</span><span class="s3">.</span><span class="s1">path</span><span class="s3">.</span><span class="s1">append</span><span class="s3">(</span><span class="s1">os</span><span class="s3">.</span><span class="s1">path</span><span class="s3">.</span><span class="s1">join</span><span class="s3">(</span><span class="s1">os</span><span class="s3">.</span><span class="s1">path</span><span class="s3">.</span><span class="s1">dirname</span><span class="s3">(</span><span class="s1">__file__</span><span class="s3">), </span><span class="s4">'..'</span><span class="s3">))</span>
+
+<span class="s0">from </span><span class="s1">src</span><span class="s3">.</span><span class="s1">masks </span><span class="s0">import </span><span class="s1">get_mask_card_number</span><span class="s3">, </span><span class="s1">get_mask_account</span>
+
+
+<span class="s0">class </span><span class="s1">TestMasks</span><span class="s3">:</span>
+    <span class="s5">&quot;&quot;&quot;Тесты для модуля masks&quot;&quot;&quot;</span>
+
+    <span class="s3">@</span><span class="s1">pytest</span><span class="s3">.</span><span class="s1">mark</span><span class="s3">.</span><span class="s1">parametrize</span><span class="s3">(</span><span class="s4">&quot;card_number, expected&quot;</span><span class="s3">, [</span>
+        <span class="s3">(</span><span class="s4">&quot;7000792289606361&quot;</span><span class="s3">, </span><span class="s4">&quot;7000 79** **** 6361&quot;</span><span class="s3">),</span>
+        <span class="s3">(</span><span class="s4">&quot;1234567890123456&quot;</span><span class="s3">, </span><span class="s4">&quot;1234 56** **** 3456&quot;</span><span class="s3">),</span>
+        <span class="s3">(</span><span class="s4">&quot;1111222233334444&quot;</span><span class="s3">, </span><span class="s4">&quot;1111 22** **** 4444&quot;</span><span class="s3">),</span>
+    <span class="s3">])</span>
+    <span class="s0">def </span><span class="s1">test_get_mask_card_number_valid</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">card_number</span><span class="s3">, </span><span class="s1">expected</span><span class="s3">):</span>
+        <span class="s5">&quot;&quot;&quot;Тестирование маскировки валидных номеров карт&quot;&quot;&quot;</span>
+        <span class="s0">assert </span><span class="s1">get_mask_card_number</span><span class="s3">(</span><span class="s1">card_number</span><span class="s3">) == </span><span class="s1">expected</span>
+
+    <span class="s0">def </span><span class="s1">test_get_mask_card_number_with_spaces</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s5">&quot;&quot;&quot;Тестирование маскировки номера карты с пробелами&quot;&quot;&quot;</span>
+        <span class="s0">assert </span><span class="s1">get_mask_card_number</span><span class="s3">(</span><span class="s4">&quot;7000 7922 8960 6361&quot;</span><span class="s3">) == </span><span class="s4">&quot;7000 79** **** 6361&quot;</span>
+
+    <span class="s0">def </span><span class="s1">test_get_mask_card_number_short</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s5">&quot;&quot;&quot;Тестирование маскировки короткого номера карты&quot;&quot;&quot;</span>
+        <span class="s0">with </span><span class="s1">pytest</span><span class="s3">.</span><span class="s1">raises</span><span class="s3">(</span><span class="s1">ValueError</span><span class="s3">, </span><span class="s1">match</span><span class="s3">=</span><span class="s4">&quot;Номер карты должен содержать минимум 16 цифр&quot;</span><span class="s3">):</span>
+            <span class="s1">get_mask_card_number</span><span class="s3">(</span><span class="s4">&quot;1234567890&quot;</span><span class="s3">)</span>
+
+    <span class="s0">def </span><span class="s1">test_get_mask_card_number_empty</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s5">&quot;&quot;&quot;Тестирование маскировки пустой строки&quot;&quot;&quot;</span>
+        <span class="s0">with </span><span class="s1">pytest</span><span class="s3">.</span><span class="s1">raises</span><span class="s3">(</span><span class="s1">ValueError</span><span class="s3">, </span><span class="s1">match</span><span class="s3">=</span><span class="s4">&quot;Номер карты должен содержать минимум 16 цифр&quot;</span><span class="s3">):</span>
+            <span class="s1">get_mask_card_number</span><span class="s3">(</span><span class="s4">&quot;&quot;</span><span class="s3">)</span>
+
+    <span class="s3">@</span><span class="s1">pytest</span><span class="s3">.</span><span class="s1">mark</span><span class="s3">.</span><span class="s1">parametrize</span><span class="s3">(</span><span class="s4">&quot;account_number, expected&quot;</span><span class="s3">, [</span>
+        <span class="s3">(</span><span class="s4">&quot;73654108430135874305&quot;</span><span class="s3">, </span><span class="s4">&quot;**4305&quot;</span><span class="s3">),</span>
+        <span class="s3">(</span><span class="s4">&quot;1234567890&quot;</span><span class="s3">, </span><span class="s4">&quot;**7890&quot;</span><span class="s3">),</span>
+        <span class="s3">(</span><span class="s4">&quot;1234&quot;</span><span class="s3">, </span><span class="s4">&quot;**1234&quot;</span><span class="s3">),</span>
+    <span class="s3">])</span>
+    <span class="s0">def </span><span class="s1">test_get_mask_account_valid</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">account_number</span><span class="s3">, </span><span class="s1">expected</span><span class="s3">):</span>
+        <span class="s5">&quot;&quot;&quot;Тестирование маскировки валидных номеров счетов&quot;&quot;&quot;</span>
+        <span class="s0">assert </span><span class="s1">get_mask_account</span><span class="s3">(</span><span class="s1">account_number</span><span class="s3">) == </span><span class="s1">expected</span>
+
+    <span class="s0">def </span><span class="s1">test_get_mask_account_with_spaces</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s5">&quot;&quot;&quot;Тестирование маскировки номера счета с пробелами&quot;&quot;&quot;</span>
+        <span class="s0">assert </span><span class="s1">get_mask_account</span><span class="s3">(</span><span class="s4">&quot;7365 4108 4301 3587 4305&quot;</span><span class="s3">) == </span><span class="s4">&quot;**4305&quot;</span>
+
+    <span class="s0">def </span><span class="s1">test_get_mask_account_short</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s5">&quot;&quot;&quot;Тестирование маскировки короткого номера счета&quot;&quot;&quot;</span>
+        <span class="s0">with </span><span class="s1">pytest</span><span class="s3">.</span><span class="s1">raises</span><span class="s3">(</span><span class="s1">ValueError</span><span class="s3">, </span><span class="s1">match</span><span class="s3">=</span><span class="s4">&quot;Номер счета должен содержать минимум 4 цифры&quot;</span><span class="s3">):</span>
+            <span class="s1">get_mask_account</span><span class="s3">(</span><span class="s4">&quot;123&quot;</span><span class="s3">)</span>
+
+    <span class="s0">def </span><span class="s1">test_get_mask_account_empty</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+        <span class="s5">&quot;&quot;&quot;Тестирование маскировки пустого номера счета&quot;&quot;&quot;</span>
+        <span class="s0">with </span><span class="s1">pytest</span><span class="s3">.</span><span class="s1">raises</span><span class="s3">(</span><span class="s1">ValueError</span><span class="s3">, </span><span class="s1">match</span><span class="s3">=</span><span class="s4">&quot;Номер счета должен содержать минимум 4 цифры&quot;</span><span class="s3">):</span>
+            <span class="s1">get_mask_account</span><span class="s3">(</span><span class="s4">&quot;&quot;</span><span class="s3">)</span></pre>
+</body>
+</html>
