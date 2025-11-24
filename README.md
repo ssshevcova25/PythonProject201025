@@ -30,3 +30,15 @@
 1. Клонируйте репозиторий:
 ```bash
 git clone <url-репозитория>
+
+## Модуль utils
+
+Функции для работы с файлами и данными.
+
+### `read_json_file(file_path)`
+Читает JSON файл и возвращает список словарей с транзакциями.
+
+```python
+from src.utils import read_json_file
+
+transactions = read_json_file("data/operations.json")
