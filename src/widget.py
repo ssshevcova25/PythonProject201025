@@ -1,39 +1,49 @@
 def mask_account_card(account_info: str) -> str:
-    """Маскирует номер карты или счета"""
+    """
+    Маскирует номер карты или счета в переданной строке
+
+    Args:
+        account_info: Строка с типом и номером карты/счета
+
+    Returns:
+        Строка с замаскированным номером
+    """
     if not account_info:
         return account_info
 
-    *name_parts, number = account_info.split()
-    name = " ".join(name_parts)
+    # Разделяем строку на слова
+    parts = account_info.split()
 
+    # Если меньше 2 слов, возвращаем как есть
+    if len(parts) < 2:
+        return account_info
+
+    # Берем последнюю часть как номер
+    number = parts[-1]
+
+    # Проверяем что номер состоит из цифр (может быть с разделителями)
+    clean_number = "".join(filter(str.isdigit, number))
+
+    # Если нет цифр или слишком мало цифр - возвращаем как есть
+    if not clean_number or len(clean_number) < 4:
+        return account_info
+
+    # Все что перед последним элементом - это название
+    name = " ".join(parts[:-1])
+
+    # Определяем тип по названию
     if name.lower() == "счет":
-        return f"{name} **{number[-4:]}"
+        masked_number = f"**{clean_number[-4:]}"
     else:
-        return f"{name} {number[:4]} {number[4:6]}** **** {number[-4:]}"
+        if len(clean_number) >= 16:
+            masked_number = f"{clean_number[:4]} {clean_number[4:6]}** **** {clean_number[-4:]}"
+        else:
+            # Для коротких номеров карт возвращаем как есть
+            return account_info
 
+    return f"{name} {masked_number}"
 
-# Тест
-if __name__ == "__main__":
-    tests = [
-        "Maestro 1596837868705199",
-        "Счет 64686473678894779589",
-        "MasterCard 7158300734726758",
-        "Счет 35383033474447895560",
-        "Visa Classic 6831982476737658",
-        "Visa Platinum 8990922113665229",
-        "Visa Gold 5999414228426353",
-        "Счет 73654108430135874305"
-    ]
-
-    for test in tests:
-        print(f"{test} -> {mask_account_card(test)}")
 
 def get_date(date_string: str) -> str:
     """Преобразует дату в формат ДД.ММ.ГГГГ"""
     return f"{date_string[8:10]}.{date_string[5:7]}.{date_string[:4]}"
-
-
-# Тест
-if __name__ == "__main__":
-    date_test = "2024-03-11T02:26:18.671407"
-    print(f"{date_test} -> {get_date(date_test)}")  # 2024-03-11T02:26:18.671407 -> 11.03.2024

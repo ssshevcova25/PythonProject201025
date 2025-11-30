@@ -6,6 +6,12 @@ import os
 def read_json_file(file_path: str) -> List[Dict[str, Any]]:
     """
     Читает JSON файл и возвращает список словарей с данными о транзакциях
+
+    Args:
+        file_path: Путь к JSON файлу
+
+    Returns:
+        Список словарей с данными о транзакциях или пустой список в случае ошибки
     """
     try:
         if not os.path.exists(file_path):
