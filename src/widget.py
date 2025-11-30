@@ -1,39 +1,50 @@
 def mask_account_card(account_info: str) -> str:
-    """Маскирует номер карты или счета"""
+    """
+    Маскирует номер карты или счета в переданной строке
+
+    Args:
+        account_info: Строка с типом и номером карты/счета
+
+    Returns:
+        Строка с замаскированным номером
+    """
     if not account_info:
         return account_info
 
-    *name_parts, number = account_info.split()
-    name = " ".join(name_parts)
+    # Разделяем строку на слова
+    parts = account_info.split()
 
+    # Если только одно слово или нет цифр - возвращаем как есть
+    if len(parts) <= 1:
+        return account_info
+
+    # Последний элемент - это номер (должен содержать цифры)
+    number = parts[-1]
+
+    # Проверяем содержит ли последняя часть цифры
+    if not any(char.isdigit() for char in number):
+        return account_info
+
+    # Все что перед последним элементом - это название карты/счета
+    name = " ".join(parts[:-1])
+
+    # Определяем тип по названию и применяем соответствующую маскировку
     if name.lower() == "счет":
-        return f"{name} **{number[-4:]}"
+        # Маскировка для счета: **XXXX
+        masked_number = f"**{number[-4:]}"
     else:
-        return f"{name} {number[:4]} {number[4:6]}** **** {number[-4:]}"
+        # Маскировка для карты: XXXX XX** **** XXXX
+        # Убедимся что номер содержит достаточно цифр
+        clean_number = "".join(filter(str.isdigit, number))
+        if len(clean_number) >= 16:
+            masked_number = f"{clean_number[:4]} {clean_number[4:6]}** **** {clean_number[-4:]}"
+        else:
+            # Если цифр недостаточно, возвращаем исходный номер
+            masked_number = number
 
+    return f"{name} {masked_number}"
 
-# Тест
-if __name__ == "__main__":
-    tests = [
-        "Maestro 1596837868705199",
-        "Счет 64686473678894779589",
-        "MasterCard 7158300734726758",
-        "Счет 35383033474447895560",
-        "Visa Classic 6831982476737658",
-        "Visa Platinum 8990922113665229",
-        "Visa Gold 5999414228426353",
-        "Счет 73654108430135874305"
-    ]
-
-    for test in tests:
-        print(f"{test} -> {mask_account_card(test)}")
 
 def get_date(date_string: str) -> str:
     """Преобразует дату в формат ДД.ММ.ГГГГ"""
     return f"{date_string[8:10]}.{date_string[5:7]}.{date_string[:4]}"
-
-
-# Тест
-if __name__ == "__main__":
-    date_test = "2024-03-11T02:26:18.671407"
-    print(f"{date_test} -> {get_date(date_test)}")  # 2024-03-11T02:26:18.671407 -> 11.03.2024
